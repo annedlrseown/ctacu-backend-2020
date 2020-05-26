@@ -5,7 +5,7 @@ using System.Web;
 
 namespace MyFirstApi.ApiController
 {
-    public class UsersController
+    public class UsersController: System.Web.Http.ApiController
     {
     }
 }
