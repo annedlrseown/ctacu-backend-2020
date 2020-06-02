@@ -1,53 +1,67 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
+using MyFirstApi.Domain.Interfaces;
+using MyFirstApi.Domain.Services;
+using MyFirstApi.Domain.Services.Requests;
 
 namespace MyFirstApi.ApiController
 {
     [RoutePrefix("api/Values")]
     public class ValuesController: System.Web.Http.ApiController
     {
-        private static List<string> _values = new List<string>
+        private readonly IValueService _valueService;
+
+        public ValuesController(IValueService valueService)
         {
-            "one",
-            "two",
-            "three"
-        };
+            _valueService = valueService;
+        }
 
         [HttpGet]
         [Route("")]
-        public List<string> GetValues()
+        public IHttpActionResult GetValues()
         {
-            return _values;
+            return Ok(_valueService.GetValues());
         }
 
         [HttpGet]
         [Route("{identifier}")]
         public string GetValue(int identifier)
         {
-            return _values[identifier];
+            return _valueService.GetValue(identifier);
         }
 
         [HttpPost]
         [Route("")]
         public int PostValue(ValuesRequestBody request)
         {
-            _values.Add(request.Value);
-            return _values.Count - 1;
+            var serviceRequest = new CreateValueRequest
+            {
+                Value = request.Value
+            };
+
+            var response = _valueService.CreateValue(serviceRequest);
+            return response.Id;
         }
 
         [HttpPut]
         [Route("{identifier")]
         public int PutValue([FromUri]int identifier, [FromBody]ValuesRequestBody request)
         {
-            _values[identifier] = request.Value;
-            return identifier;
+            var serviceRequest = new UpdateValueRequest
+            {
+                Id = identifier,
+                Value = request.Value
+            };
+
+            var response = _valueService.UpdateValue(serviceRequest);
+            return response.Id;
         }
 
         [HttpDelete]
         [Route("{identifier")]
         public void DeleteValue(int identifier)
         {
-            _values.RemoveAt(identifier);
+            _valueService.RemoveValue(identifier);
         }
     }
 
